@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Token Launch Radar — protocols with no token yet, ranked by implied value</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <div>
+      <h1>Token Launch Radar</h1>
+      <p class="sub">Protocols that record no token yet, ranked by what a token would be worth if one launched — read from a sealed DefiLlama snapshot, nothing fetched live.</p>
+    </div>
+    <div class="meta" id="meta">Loading the snapshot…</div>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Views">
+  <button class="tab active" data-tab="board" type="button">Radar board</button>
+  <button class="tab" data-tab="launched" type="button">Already trading</button>
+  <button class="tab" data-tab="method" type="button">How the model works</button>
+</nav>
+
+<main>
+  <section id="tab-board" class="pane">
+    <div class="stats" id="stats"></div>
+    <div class="controls">
+      <label>Search <input id="q" type="search" placeholder="Protocol name or slug…" autocomplete="off"></label>
+      <label>Category
+        <select id="cat"><option value="">All categories</option></select>
+      </label>
+      <label>Chain
+        <select id="chain"><option value="">All chains</option></select>
+      </label>
+      <label>Sort by
+        <select id="sort">
+          <option value="implied">Implied value</option>
+          <option value="tvl">TVL</option>
+          <option value="growth">7-day change</option>
+          <option value="age">Age (oldest first)</option>
+          <option value="name">Name A–Z</option>
+        </select>
+      </label>
+      <label class="check"><input id="watch" type="checkbox"> Watchlist only</label>
+    </div>
+    <p class="hint" id="count"></p>
+    <div class="table-wrap">
+      <table id="board">
+        <thead>
+          <tr>
+            <th class="num">#</th>
+            <th>Protocol</th>
+            <th>Category</th>
+            <th>Chains</th>
+            <th class="num">TVL</th>
+            <th class="num">7-day</th>
+            <th class="num">Age</th>
+            <th class="num">Implied value</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div id="detail" class="detail" hidden></div>
+  </section>
+
+  <section id="tab-launched" class="pane" hidden>
+    <p class="lede">These protocols already have a token trading. They are not ranked for a launch — they are the yardstick: the board's multiples come from the market-cap-to-TVL ratios of protocols like these, in the same snapshot.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Protocol</th>
+            <th>Category</th>
+            <th class="num">TVL</th>
+            <th class="num">Market cap</th>
+            <th class="num">MCap / TVL</th>
+          </tr>
+        </thead>
+        <tbody id="launched-rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="tab-method" class="pane" hidden>
+    <h2>How the model works</h2>
+    <p class="lede">Every number on the board is computed from the snapshot alone. No protocol is named in advance, and the same code on a different snapshot would rank a different board.</p>
+    <div class="formula">implied value = TVL × category multiple × growth factor × age factor</div>
+    <h3>The category multiple</h3>
+    <p>For each category, the median market-cap-to-TVL ratio of the token-bearing protocols in that category — shrunk toward the global median with five phantom peers, so a category with few trading protocols does not set its own multiple on a coin flip. A category with fewer than three trading peers uses the global median outright: a single peer must not set the multiple for a whole category. The multiple is clamped to 0.05–2.00.</p>
+    <h3>The growth factor</h3>
+    <p>The protocol's seven-day TVL change, clamped to −50%…+100%, bent gently: 1 + change ÷ 200. A week of −50% is worth 0.75, a week of +100% is worth 1.50. A protocol with no reported change is neutral at 1.00.</p>
+    <h3>The age factor</h3>
+    <p>How long the protocol has run with no token yet: 1 + 0.25 × (days listed ÷ 1095), capped at three years. A three-year track record with no token carries a quarter more implied value than a two-week-old one — the launch, when it comes, has three years of usage behind it.</p>
+    <h3>Who reaches the board</h3>
+    <p>A protocol reaches the board when DefiLlama records no token for it and it is not a bridge, liquid-staking or CEX product, carries no version marker or wrapped/staked word in its name, and is not named after an exchange. That is the house's own plausibility rule, applied to the five checks the snapshot supports — the snapshot carries no parent-protocol field, so that one check cannot be applied here. The watchlist is the floor, never the ceiling: 40 of the 198 rows are on it, and the other 158 are pre-token protocols below the floor that pass the same screen. Centralised exchanges and wrapped products are left out because they are not protocols waiting on a launch of their own.</p>
+    <h3>Farm plans</h3>
+    <p>Each row carries five steps, written for its category, its main chain and its size tier: an amount to use, a gas estimate for its chain, and a time cost. The amounts are sized to the protocol — $100–$250 for the smallest, $500–$1,000 for the largest — and the steps favour steady use over weeks, because points programs usually count weeks of activity, not one day. Gas figures are estimates at snapshot time, not quotes.</p>
+    <h3>What this is not</h3>
+    <p>The board does not predict whether or when a token is issued, and its implied value is this entry's own claim, never make.fun's. A protocol that records no token may still have one its DefiLlama record does not carry. Farm at your own risk, with amounts you can afford to lose, and never more than the steps suggest.</p>
+    <p class="foot">Data: DefiLlama protocols snapshot, sealed 2026-11-14. Built for make.fun's “Build the best token launch radar” bounty.</p>
+  </section>
+</main>
+
+<script src="../data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
